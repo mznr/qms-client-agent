@@ -1,0 +1,81 @@
+HELP.md
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+
+
+# --- Java / Maven ---
+*.class
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.restore
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# mvnw (optional: keep if you want to use the wrapper)
+#!mvnw
+#!mvnw.cmd
+#!.mvn/wrapper/maven-wrapper.jar
+#!.mvn/wrapper/maven-wrapper.properties
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+gen/
+# Ignore workspace.xml specifically if you want to keep some .idea settings
+# .idea/workspace.xml
+
+# --- Eclipse ---
+.settings/
+.project
+.classpath
+.factorypath
+
+# --- VS Code ---
+.vscode/
+
+# --- Logs ---
+*.log
+logs/
+**/logs/
+
+# --- Project Specific ---
+ai-todos/
+g-ai-todos/
+GEMINI.md
+
+# --- Secrets & Environment ---
+.env
+.env.*
+*.jks
+*.p12
+*.pfx
+*.pem
+# Exception for specific certificates if they are public/required for build
+# !src/main/resources/*.cer
+
+# --- OS / Miscellaneous ---
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.swp
+
+/jdk
+/jdk/*
