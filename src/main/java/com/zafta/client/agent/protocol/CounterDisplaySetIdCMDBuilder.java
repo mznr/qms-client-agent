@@ -15,6 +15,10 @@ public class CounterDisplaySetIdCMDBuilder {
     //private final static String CMD_SET_ID_HEADER = "00AA55AA5541444151AD0000000064";
     //private final static int INDEX_OLD_ID_LAST = 13;
     //private final static int INDEX_NEW_ID_LAST = 11;
+    // 00AA55AA5541444151AD0003000164 (change id from 1 to 3)
+    // 00AA55AA5541444151AD0002000164 (change id from 1 to 2)
+    // 00AA55AA5541444151AD0000000064
+    // 0060616263646566675A0F00AA55AA5541444151AD0002000164
     private final static String CMD_SET_ID_HEADER = "0060616263646566675A0F00AA55AA5541444151AD0000000064";
 
     private final static int INDEX_OLD_ID_LAST = 24;

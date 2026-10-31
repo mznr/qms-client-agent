@@ -157,10 +157,17 @@ public class CounterHIDDisplayService implements HidServicesListener {
             setCounterDotMatrixDisplayOnDuration(defaultOnDurationSeconds);
 
 
-            int newDisplayId = counter.getDisplayId();
+            /*int newDisplayId = counter.getDisplayId();
             if (newDisplayId != currentDisplayId) {
                 delay(1000);
                 setIdOnCounterDotMatrixDisplay(currentDisplayId, newDisplayId);
+            }*/
+
+
+            int newDisplayId = counter.getDisplayId();
+            if (newDisplayId != currentDisplayId) {
+                delay(1000);
+                setIdOnCounterDotMatrixDisplay(newDisplayId, currentDisplayId);
             }
 
             return true;
@@ -193,8 +200,9 @@ public class CounterHIDDisplayService implements HidServicesListener {
         try {
             for(int i = 0; i<5 ;i++){
                 byte[] command = CounterDisplaySetIdCMDBuilder.build(oldId, newId);
+                LOGGER.info(BytesUtils.toHexString(command));
                 handle.write(command, command.length, (byte) 0x03);
-                delay(100);
+                delay(300);
             }
 
             LOGGER.info("Counter display id successfully changed from {} to {}", oldId, newId);
