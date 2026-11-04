@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zafta</groupId>
     <artifactId>client-agent</artifactId>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <name>client-agent</name>
     <description>Zafta Client Agent</description>
     <properties>

@@ -3,6 +3,7 @@ server:
 zafta:
   counter:
     id: "1"
+    currentDisplayId: "1"
     displayId: "1"
 qms:
   server:

@@ -16,7 +16,7 @@ public class CounterDisplaySetOnDurationCMDBuilder {
     private final static int INDEX_ON_DURATION_VALUE_LAST = 12;*/
 
     private final static String CMD_SET_ON_DURATION_HEADER = "0060616263646566675A0E00AA55AA5541444151EF00000064";
-
+                                                                                 // 00AA55AA5541444151EF00010064 (10 Seconds)
     private final static int INDEX_ON_DURATION_VALUE_LAST = 23;
 
     public static byte[] build(int duration){

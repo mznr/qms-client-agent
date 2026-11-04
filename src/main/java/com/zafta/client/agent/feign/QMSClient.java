@@ -2,6 +2,7 @@ package com.zafta.client.agent.feign;
 
 import com.zafta.client.agent.models.InvocationRequest_new;
 import com.zafta.client.agent.models.ResponseMessage;
+import com.zafta.client.agent.models.counter.CounterUpdateRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,9 @@ public interface QMSClient {
 
     @GetMapping("/counters/getCounter/{counterId}")
     ResponseMessage getCounter(@PathVariable(value="counterId") int counterId);
+
+    @PostMapping("/counters/updateCounter")
+    ResponseMessage updateCounter(@RequestBody CounterUpdateRequest request);
 
     @GetMapping("/turns/getWaitingInQueueByCID/{counterId}")
     ResponseMessage getWaitingInQueueByCounterId(@PathVariable int counterId);

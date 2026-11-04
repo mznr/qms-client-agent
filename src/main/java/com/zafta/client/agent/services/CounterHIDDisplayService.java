@@ -4,14 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zafta.client.agent.feign.QMSClient;
 import com.zafta.client.agent.mappers.GenericMapper;
 import com.zafta.client.agent.models.CounterDotMatrixDisplayConfig;
+import com.zafta.client.agent.models.InvocationRequest_new;
 import com.zafta.client.agent.models.LEDBlinkingConfig;
 import com.zafta.client.agent.models.ResponseMessage;
 import com.zafta.client.agent.models.counter.Counter;
 import com.zafta.client.agent.models.counter.CounterDisplayRequest;
+import com.zafta.client.agent.models.counter.CounterUpdateRequest;
 import com.zafta.client.agent.models.counter.DisplayType;
 import com.zafta.client.agent.protocol.*;
 import com.zafta.client.agent.schedules.BlinkTimeoutSchedule;
 import com.zafta.client.agent.utilities.BytesUtils;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
@@ -22,6 +25,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,6 +44,9 @@ public class CounterHIDDisplayService implements HidServicesListener {
     private int counterId;
 
     @Value("${zafta.counter.displayId}")
+    private int newDisplayId;
+
+    @Value("${zafta.counter.currentDisplayId}")
     private int currentDisplayId;
 
     private BlinkTimeoutSchedule blinkTimeoutSchedule;
@@ -72,6 +79,17 @@ public class CounterHIDDisplayService implements HidServicesListener {
         //applyDefaultSettingsOnCounterHIDDotMatrixDisplay();
 
         //powerOnSelfTest();
+
+    }
+
+
+    @PreDestroy
+    public void cleanup() {
+        try {
+            TurnOff();
+        }catch (Exception ignored){
+
+        }
 
     }
 
@@ -148,31 +166,45 @@ public class CounterHIDDisplayService implements HidServicesListener {
                 LOGGER.error("Matrix Display is not Connected. Settings wouldn't be set on it");
                 return false;
             }
-            CounterDotMatrixDisplayConfig dotMatrixDisplayConfiguration = getDotMatrixDisplayConfiguration();
-            setTextOnCounterDotMatrixDisplay(dotMatrixDisplayConfiguration.getDefaultText());
 
-            delay(200);
+            CounterDotMatrixDisplayConfig dotMatrixDisplayConfiguration = getDotMatrixDisplayConfiguration();
 
             int defaultOnDurationSeconds = dotMatrixDisplayConfiguration.getDefaultOnDurationSeconds();
             setCounterDotMatrixDisplayOnDuration(defaultOnDurationSeconds);
 
+            delay(1000);
 
-            /*int newDisplayId = counter.getDisplayId();
+            setTextOnCounterDotMatrixDisplay(dotMatrixDisplayConfiguration.getDefaultText());
+
+            //delay(300);
+
+
+
+            //int currentDisplayId = counter.getDisplayId();
             if (newDisplayId != currentDisplayId) {
                 delay(1000);
                 setIdOnCounterDotMatrixDisplay(currentDisplayId, newDisplayId);
-            }*/
-
-
-            int newDisplayId = counter.getDisplayId();
-            if (newDisplayId != currentDisplayId) {
-                delay(1000);
-                setIdOnCounterDotMatrixDisplay(newDisplayId, currentDisplayId);
+                updateCounter(
+                        CounterUpdateRequest.builder()
+                                .id(counter.getId())
+                                .displayId(newDisplayId)
+                                .userId(counter.getUserId())
+                                .build()
+                );
             }
 
             return true;
         }
         return false;
+    }
+
+    public void updateCounter(CounterUpdateRequest request){
+        ResponseMessage responseMessage = qmsClient.updateCounter(request);
+        if (!responseMessage.isSucceed()){
+            LOGGER.error(responseMessage.getContent());
+        }else {
+            LOGGER.info("Counter configurations successfully Updated on QMS");
+        }
     }
 
 
@@ -200,7 +232,7 @@ public class CounterHIDDisplayService implements HidServicesListener {
         try {
             for(int i = 0; i<5 ;i++){
                 byte[] command = CounterDisplaySetIdCMDBuilder.build(oldId, newId);
-                LOGGER.info(BytesUtils.toHexString(command));
+                //LOGGER.info(BytesUtils.toHexString(command));
                 handle.write(command, command.length, (byte) 0x03);
                 delay(300);
             }
@@ -219,8 +251,11 @@ public class CounterHIDDisplayService implements HidServicesListener {
         }
 
         try {
-            byte[] command = CounterDisplaySetOnDurationCMDBuilder.build(duration);
-            handle.write(command, command.length, (byte) 0x03);
+            for(int i = 0; i<5 ;i++){
+                byte[] command = CounterDisplaySetOnDurationCMDBuilder.build(duration);
+                handle.write(command, command.length, (byte) 0x03);
+                delay(300);
+            }
             LOGGER.info("Counter display on-duration (seconds) successfully set tp : {}", duration);
         } catch (Exception e) {
             LOGGER.error("Error in setting on-duration on counter dot-matrix display");
@@ -253,11 +288,12 @@ public class CounterHIDDisplayService implements HidServicesListener {
             throw new RuntimeException("LED Display is not Connected.");
         }
         byte[] bytes = BytesUtils.toByteArray("315051525354555657");
-        handle.write(bytes, bytes.length, (byte) 0x03);
-        delay(5);
-        handle.write(bytes, bytes.length, (byte) 0x03);
-        delay(5);
-        handle.write(bytes, bytes.length, (byte) 0x03);
+
+        for (int i = 0; i < 5; i++) {
+            handle.write(bytes, bytes.length, (byte) 0x03);
+            delay(100);
+        }
+
     }
 
 
@@ -266,11 +302,10 @@ public class CounterHIDDisplayService implements HidServicesListener {
             throw new RuntimeException("LED Display is not Connected.");
         }
         byte[] bytes = BytesUtils.toByteArray("305051525354555657");
-        handle.write(bytes, bytes.length, (byte) 0x03);
-        delay(5);
-        handle.write(bytes, bytes.length, (byte) 0x03);
-        delay(5);
-        handle.write(bytes, bytes.length, (byte) 0x03);
+        for (int i = 0; i < 5; i++) {
+            handle.write(bytes, bytes.length, (byte) 0x03);
+            delay(100);
+        }
     }
 
     public void startBlinking() {
